@@ -47,8 +47,8 @@ public class DrawPanel extends JPanel implements KeyListener {
                 checkCollisions();
                 if(prize.isCollected()) {
                     prizeCount++;
-                    prize = new Prize(random.nextInt(this.getWidth()) - 14, random.nextInt(this.getHeight()) - 14, 15, 15);
-                    enemies.add(new Enemy(random.nextInt(this.getWidth()) - 49, random.nextInt(this.getHeight()) - 49, 50, 50, randomSpeedDirection()));
+                    prize = new Prize(random.nextInt(this.getWidth() - 14), random.nextInt(this.getHeight() - 14), 15, 15);
+                    enemies.add(new Enemy(random.nextInt(this.getWidth() - 49), random.nextInt(this.getHeight() - 49), 50, 50, randomSpeedDirection()));
                 }
                 drawBuffer();
                 drawScreen();
