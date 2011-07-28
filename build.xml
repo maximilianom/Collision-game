@@ -1,0 +1,35 @@
+<project name="Collision" default="compile" basedir=".">
+    <description>
+        Just testing java and ant
+    </description>
+    <property name="src" location="src"/>
+    <property name="bin" location="bin"/>
+    <property name="dist" location="dist"/>
+
+    <target name="init">
+        <tstamp/>
+        <mkdir dir="${bin}"/>
+    </target>
+
+    <target name="compile" depends="init">
+        <javac srcdir="${src}" destdir="${bin}"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="${bin}"/>
+        <delete dir="${dist}"/>
+    </target>
+
+    <target name="dist" depends="compile">
+        <mkdir dir="${dist}"/>
+        <jar destfile="${dist}/Collision.jar" basedir="${bin}">
+            <manifest>
+                <attribute name="Main-Class" value="Gui"/>
+            </manifest>
+        </jar>
+    </target>
+
+    <target name="run" depends="compile">
+        <java classname="Gui" classpath="./bin/" fork="true"/>
+    </target>
+</project>
