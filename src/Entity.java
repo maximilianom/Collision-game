@@ -16,18 +16,7 @@ public abstract class Entity {
     protected boolean collided;
     
     //CONSTRUCTOR
-    public Entity() {
-//        this.x = x;
-//        this.y = y;
-//        this.width = width;
-//        this.height = height;
-//        collided = false;
-//        
-//        //THIS SHOULD BE IN PLAYER
-////        //entity should remain still at beginning
-////        vx = 0;
-////        vy = 0;
-    }
+    public Entity() {}
  
     public void update(long timePassed) {
         x += vx * timePassed;
