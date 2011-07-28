@@ -12,7 +12,6 @@ public class Gui {
         window.setSize(800,600);
         window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         window.getContentPane().add(panel);
-        window.setFont(new Font("Arial", 25, Font.PLAIN));
         window.setVisible(true);
     }
     
