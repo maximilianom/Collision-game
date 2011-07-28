@@ -1,31 +1,32 @@
 import java.awt.Rectangle;
 
-public class Entity {
-    private int width;
-    private int height;
+public abstract class Entity {
+    protected int width;
+    protected int height;
     
     //position
-    private float x;
-    private float y;
+    protected float x;
+    protected float y;
     
     //velocity
-    private float vx;
-    private float vy;
+    protected float vx;
+    protected float vy;
     
     //collision
-    private boolean collided;
+    protected boolean collided;
     
     //CONSTRUCTOR
-    public Entity(float x, float y, int width, int height) {
-        this.x = x;
-        this.y = y;
-        this.width = width;
-        this.height = height;
-        collided = false;
-        
-        //entity should remain still at beginning
-        vx = 0;
-        vy = 0;
+    public Entity() {
+//        this.x = x;
+//        this.y = y;
+//        this.width = width;
+//        this.height = height;
+//        collided = false;
+//        
+//        //THIS SHOULD BE IN PLAYER
+////        //entity should remain still at beginning
+////        vx = 0;
+////        vy = 0;
     }
  
     public void update(long timePassed) {
@@ -43,6 +44,14 @@ public class Entity {
     
     public void setVelocityX(float vx) {
         this.vx = vx;
+    }
+    
+    public float getVelocityX() {
+        return vx;
+    }
+    
+    public float getVelocityY() {
+        return vy;
     }
     
     public float getX() {

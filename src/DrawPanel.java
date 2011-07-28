@@ -2,15 +2,26 @@ import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.awt.*;
 
+import java.util.*;
+
 import javax.swing.*;
 
 public class DrawPanel extends JPanel implements KeyListener {
     
-    private Entity player;
-    private Entity enemy;
+    private Player player;
+    private Prize prize;
+    
+    //Prizes collected
+    private int prizeCount;
+    
+    //enemies
+    private ArrayList<Enemy> enemies;
     
     //Used for smooth animation
     private BufferedImage buffer;
+    
+    //Random class
+    private final Random random = new Random();
     
     //CONSTRUCTOR
     public DrawPanel() {
@@ -21,7 +32,7 @@ public class DrawPanel extends JPanel implements KeyListener {
     
     //Method called from Gui containing main loop
     public void start() {
-        
+        buffer = new BufferedImage(800,600,BufferedImage.TYPE_INT_RGB);
         //Very Important. Almost forgot
         init();
         
@@ -34,6 +45,11 @@ public class DrawPanel extends JPanel implements KeyListener {
                 acumulatedTime += timePassed;
                 update(timePassed);
                 checkCollisions();
+                if(prize.isCollected()) {
+                    prizeCount++;
+                    prize = new Prize(random.nextInt(this.getWidth()) - 14, random.nextInt(this.getHeight()) - 14, 15, 15);
+                    enemies.add(new Enemy(random.nextInt(this.getWidth()) - 49, random.nextInt(this.getHeight()) - 49, 50, 50, randomSpeedDirection()));
+                }
                 drawBuffer();
                 drawScreen();
                 Thread.sleep(15);
@@ -44,19 +60,33 @@ public class DrawPanel extends JPanel implements KeyListener {
     }
     
     private void init() {
-        buffer = new BufferedImage(800,600,BufferedImage.TYPE_INT_RGB);
+        prizeCount = 0;
         loadEntities();   
     }
     
     private void loadEntities() {
-        player = new Entity(0, 0, 50, 50);
-        enemy = new Entity(400, 400, 50, 50); 
+        player = new Player(0, 0, 50, 50);
+        prize = new Prize(random.nextInt(this.getWidth() - 14), random.nextInt(this.getHeight() - 14), 15, 15);
+        enemies = new ArrayList<Enemy>();
+        
+        //gotta fix this hardcoding in the position
+        enemies.add(new Enemy(random.nextInt(this.getWidth() - 49),random.nextInt(this.getHeight() - 49) , 50, 50, randomSpeedDirection())); 
     }
     
     private void update(long timePassed) {
         player.update(timePassed);
+        for(Enemy enemy : enemies) {
+            enemy.update(timePassed);
+        }
         
-        //have you gone out of the screen? Let me help you.
+        
+        //Is anyone out of screen?
+        outOfBoundries();
+    }
+    
+    private void outOfBoundries() {
+        
+        //player treatment
         if(player.getX() < 0) {
             player.setX(0);
         }
@@ -70,23 +100,61 @@ public class DrawPanel extends JPanel implements KeyListener {
             player.setY(this.getHeight() - player.getHeight());
         }
         
+        //enemies treatment
+        for(Enemy enemy : enemies) {
+            if(enemy.getX() < 0) {
+                enemy.setVelocityX(-enemy.getVelocityX());
+            }
+            if(enemy.getX() + enemy.getWidth() > this.getWidth()) {
+                enemy.setVelocityX(-enemy.getVelocityX());
+            }
+            if(enemy.getY() < 0) {
+                enemy.setVelocityY(-enemy.getVelocityY());
+            }
+            if(enemy.getY() + enemy.getHeight() > this.getHeight()) {
+                enemy.setVelocityY(-enemy.getVelocityY());
+            }
+        }
     }
     
     private void checkCollisions() {
-        if(player.getRectangle().intersects(enemy.getRectangle())) {
-            player.setCollided(true);
+        
+       //Have you touched any of the enemies?
+       for(Entity enemy : enemies) {
+            if(player.getRectangle().intersects(enemy.getRectangle())) {
+                player.setCollided(true);
+           }
         }
+       
+       //Have you collected the prize?
+       if(player.getRectangle().intersects(prize.getRectangle())) {
+           prize.setCollected(true);
+       }
+    }
+    
+    private Enemy.SpeedDirection randomSpeedDirection() {
+        int pick = random.nextInt(Enemy.SpeedDirection.values().length);
+        return Enemy.SpeedDirection.values()[pick];
     }
     
     private void drawBuffer() {
         Graphics2D b = buffer.createGraphics();
         b.setColor(Color.black);
         b.fillRect(0, 0, 800, 600);
+
         if (player.isCollided() == false) {
             b.setColor(Color.red);
             b.fillRect(Math.round(player.getX()), Math.round(player.getY()), player.getWidth(), player.getHeight());
             b.setColor(Color.blue);
-            b.fillRect(Math.round(enemy.getX()), Math.round(enemy.getY()), enemy.getWidth(), enemy.getHeight());
+            for(Entity enemy : enemies) {
+                b.fillRect(Math.round(enemy.getX()), Math.round(enemy.getY()), enemy.getWidth(), enemy.getHeight());
+            }
+            b.setColor(Color.green);
+            b.fillRect(Math.round(prize.getX()), Math.round(prize.getY()), prize.getWidth(), prize.getHeight());
+            b.setColor(Color.white);
+            b.setFont(new Font("Arial", Font.PLAIN, 32));
+            b.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            b.drawString(String.valueOf(prizeCount), 750, 50);
             b.dispose();
         } else {
             b.setColor(Color.white);
@@ -116,7 +184,7 @@ public class DrawPanel extends JPanel implements KeyListener {
         
         //Wanna restart?
         if(keyCode == KeyEvent.VK_ENTER) {
-            loadEntities();
+            init();
         }
         
         if(keyCode == KeyEvent.VK_UP) {
